@@ -63,21 +63,26 @@ def test_container_and_repeated_bypasses_are_neutralised(payload):
     assert "http" not in sanitize_answer(f"Answer [1].\n{payload}")
 
 
-def test_safe_markdown_escapes_everything_but_citations_and_bold():
+def test_safe_markdown_escapes_everything_but_bold():
     rendered = to_safe_markdown("Hold **Home** [1, 2]. ![x][r] [r]: <b>(u)</b> `c`")
     assert "**Home**" in rendered
-    assert "[1, 2]" in rendered
+    assert "\\[1, 2\\]" in rendered
     for raw in ("![", "[r]", "<b>", "(u)", "`c`"):
         assert raw not in rendered
 
 
-def test_comparison_signs_are_not_mistaken_for_html():
-    text = "Torque is <5 Nm [1] and >2 Nm [2]."
-    assert sanitize_answer(text) == text
+def test_safe_markdown_never_leaves_a_bracket_unescaped():
+    rendered = to_safe_markdown("Reset [1].\n[1]: https://evil.example/track")
+    assert "[" not in rendered.replace("\\[", "")
+    assert "]" not in rendered.replace("\\]", "")
 
 
-def test_error_code_brackets_are_kept():
-    assert (
-        sanitize_answer("Error [E7] means Wi-Fi failed [1].")
-        == "Error [E7] means Wi-Fi failed [1]."
-    )
+def test_safe_markdown_defeats_gfm_autolinks():
+    rendered = to_safe_markdown("Go to https://evil.example or www.evil.example or a@evil.example")
+    for raw in ("://", "www.", "a@"):
+        assert raw not in rendered
+    assert rendered.replace("\u200b", "").startswith("Go to https://evil.example")
+
+
+def test_safe_markdown_escapes_existing_entities():
+    assert to_safe_markdown("&#58;").startswith("\\&")

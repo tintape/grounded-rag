@@ -5,9 +5,11 @@ link that leaks data when rendered. Two layers:
 
 - `sanitize_answer` (server side, every API client): strips link destinations, reference
   definitions, HTML and image markers, repeated until stable. Best effort.
-- `to_safe_markdown` (at render time): an allowlist. Every Markdown control character is escaped,
-  then only citation markers like [1] or [1, 2] are restored. Nothing else can become a link,
-  image or HTML, whatever syntax the model produced.
+- `to_safe_markdown` (at render time): an allowlist. Every Markdown control character is
+  backslash-escaped (so [1] still displays as [1] but can never form a link or reference), and an
+  invisible zero-width space is inserted into `://`, `www.` and `@` so GFM cannot autolink bare
+  URLs or e-mails (character references don't help: renderers decode them first). Only
+  plain text, bold and list numbering survive, whatever syntax the model produced.
 """
 
 import re
@@ -18,10 +20,10 @@ _HTML_TAG = re.compile(r"</?[A-Za-z][^<>\n]*>")  # real tags only, not "<5 Nm ..
 _IMAGE_MARK = re.compile(r"!+\[")
 _SPACE_RUNS = re.compile(r"[ \t]{2,}")
 _BLANK_RUNS = re.compile(r"\n{3,}")
-_MAX_PASSES = 10
 
-_MARKDOWN_CONTROL = re.compile(r"([\\`\[\]()<>!#|~_])")
-_ESCAPED_CITATION = re.compile(r"\\\[(\d+(?:\s*,\s*\d+)*)\\\]")
+_MARKDOWN_CONTROL = re.compile(r"([\\`\[\]()<>!#|~_&])")
+_ZERO_WIDTH_SPACE = "\u200b"
+_AUTOLINK_TRIGGER = re.compile(r"(:)(//)|(w)(ww\.)|(@)", re.IGNORECASE)
 
 
 def _sanitize_once(text: str) -> str:
@@ -32,10 +34,7 @@ def _sanitize_once(text: str) -> str:
 
 
 def sanitize_answer(text: str) -> str:
-    for _ in range(_MAX_PASSES):
-        cleaned = _sanitize_once(text)
-        if cleaned == text:
-            break
+    while (cleaned := _sanitize_once(text)) != text:  # every pass only shortens: terminates
         text = cleaned
     text = "\n".join(_SPACE_RUNS.sub(" ", line).strip() for line in text.splitlines())
     return _BLANK_RUNS.sub("\n\n", text).strip()
@@ -44,4 +43,11 @@ def sanitize_answer(text: str) -> str:
 def to_safe_markdown(text: str) -> str:
     """Escape all link/image/HTML/code syntax; keep bold, lists and citation markers."""
     escaped = _MARKDOWN_CONTROL.sub(r"\\\1", text)
-    return _ESCAPED_CITATION.sub(r"[\1]", escaped)
+    return _AUTOLINK_TRIGGER.sub(_break_autolink, escaped)
+
+
+def _break_autolink(match: re.Match[str]) -> str:
+    parts = [part for part in match.groups() if part]
+    if len(parts) == 1:  # "@": break before it
+        return _ZERO_WIDTH_SPACE + parts[0]
+    return parts[0] + _ZERO_WIDTH_SPACE + parts[1]
