@@ -88,7 +88,15 @@ def test_safe_markdown_escapes_existing_entities():
     assert to_safe_markdown("&#58;").startswith("\\&")
 
 
-def test_deeply_nested_payload_fails_closed_quickly():
+def test_deeply_nested_payload_loses_every_destination():
     payload = "!" * 50 + "[" * 50 + "x" + "](https://evil.example)" * 50
     cleaned = sanitize_answer(f"Answer [1]. {payload}")
-    assert "](" not in cleaned and "!" not in cleaned and "<" not in cleaned
+    assert "](" not in cleaned and "http" not in cleaned and "!" not in cleaned
+
+
+def test_pass_cap_fails_closed_with_no_structure(monkeypatch):
+    from grounded_rag.rag import sanitize
+
+    monkeypatch.setattr(sanitize, "_MAX_PASSES", 0)
+    cleaned = sanitize.sanitize_answer("Reset [1]. ![x](https://evil.example) <b>")
+    assert not set("[]()<>!") & set(cleaned)

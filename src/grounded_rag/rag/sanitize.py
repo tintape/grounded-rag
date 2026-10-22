@@ -21,7 +21,7 @@ _IMAGE_MARK = re.compile(r"!+\[")
 _SPACE_RUNS = re.compile(r"[ \t]{2,}")
 _BLANK_RUNS = re.compile(r"\n{3,}")
 _MAX_PASSES = 10
-_FAIL_CLOSED = re.compile(r"[<>!]|\]\(")
+_FAIL_CLOSED = re.compile(r"[\[\]()<>!]")  # no structure can survive; citations go too
 
 _MARKDOWN_CONTROL = re.compile(r"([\\`\[\]()<>!#|~_&])")
 _ZERO_WIDTH_SPACE = "\u200b"
@@ -41,8 +41,9 @@ def sanitize_answer(text: str) -> str:
         if cleaned == text:
             break
         text = cleaned
-    else:  # still changing after the cap: adversarial input, fail closed
-        text = _FAIL_CLOSED.sub("", _sanitize_once(text))
+    else:  # still changing after the cap: adversarial input. Strip every structural character
+        # in one linear pass; with no citations left, the engine turns the answer into a refusal.
+        text = _FAIL_CLOSED.sub("", text)
     text = "\n".join(_SPACE_RUNS.sub(" ", line).strip() for line in text.splitlines())
     return _BLANK_RUNS.sub("\n\n", text).strip()
 

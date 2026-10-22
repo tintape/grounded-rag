@@ -155,3 +155,11 @@ def test_generation_failure_raises_upstream_error_not_answer():
     engine, _ = make(gen_error=TimeoutError("openai timeout"))
     with pytest.raises(UpstreamError):
         engine.answer("How do I reset?")
+
+
+def test_answer_hitting_sanitizer_cap_becomes_refusal(monkeypatch):
+    from grounded_rag.rag import sanitize
+
+    monkeypatch.setattr(sanitize, "_MAX_PASSES", 0)
+    engine, _ = make("Reset [1]. ![x](https://evil.example)")
+    assert engine.answer("Reset?").refused is True
