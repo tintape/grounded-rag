@@ -31,7 +31,7 @@ services:
       API_KEY: ${API_KEY:-}
     command: ["streamlit", "run", "src/grounded_rag/ui/streamlit_app.py", "--server.address=0.0.0.0", "--server.port=8501"]
     ports:
-      - "8501:8501"
+      - "127.0.0.1:8501:8501" # no built-in login: put SSO / a reverse proxy in front before sharing
     depends_on:
       - api
 

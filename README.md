@@ -190,7 +190,8 @@ traceable claims, offline tests, measured quality), and every module traces back
 
 - Scanned PDFs are detected and reported but not OCR'd (add Docling/Tesseract for those).
 - Single-turn Q&A; no conversation memory.
-- No user accounts or rate limiting — put it behind your SSO/reverse proxy for wider exposure.
+- No user accounts or rate limiting. All ports bind to `127.0.0.1` by default; to share the chat
+  page with a team, put it behind your SSO or an authenticating reverse proxy.
 - Possible upgrades: hybrid (BM25 + vector) search for part numbers and error codes, a reranker,
   answer streaming.
 
