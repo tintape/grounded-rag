@@ -129,11 +129,41 @@ The question format (`eval/questions.json`) supports `reference_answer`, `expect
 > import against current `langchain-community`, and a quality gate shouldn't depend on a fragile
 > dependency chain.
 
+### Results on the demo set
+
+20 questions (15 answerable, 5 deliberately unanswerable), `openai/gpt-4.1-mini` +
+`text-embedding-3-small` via OpenRouter, Qdrant embedded mode —
+[full report](eval/results/report.md):
+
+| Metric | Result |
+|---|---|
+| Answerable questions answered | 15 / 15 |
+| Unanswerable questions refused | 5 / 5 |
+| Correct document + page cited | 15 / 15 |
+| Faithfulness · correctness (LLM judge) | 1.00 · 1.00 |
+| p95 latency | ~2.7 s |
+| Cost of the whole run | ≈ $0.02 |
+
+The demo set is small and clean, so treat this as a working baseline, not a benchmark. The
+interesting finding is *which gate does the work*:
+
+| Question | Top similarity | Stopped by |
+|---|---|---|
+| "Write me a poem about the ocean." | 0.05 | relevance gate (no LLM call) |
+| "What is the retail price of the Lumora S7?" | 0.59 | citation contract (`NOT_FOUND`) |
+| "Who is the CEO of Lumora?" | 0.52 | citation contract |
+| "How long does the battery last in Eco mode?" *(answerable)* | 0.31 | — answered correctly |
+
+On-domain but unanswered questions score as high as real ones, so no similarity threshold can
+separate them — the citation contract does. The threshold is therefore kept low (0.20, it was
+0.30 initially and left a real question 0.01 above the cut) and used only to drop off-topic noise
+cheaply.
+
 ### Tuning
 
 | Symptom in the report | Knob |
 |---|---|
-| Unanswerable questions get answered | raise `MIN_RELEVANCE` (e.g. 0.30 → 0.40) |
+| Unanswerable questions get answered | tighten the prompt first; raise `MIN_RELEVANCE` only for off-topic noise |
 | Answerable questions get refused | lower `MIN_RELEVANCE`, raise `TOP_K` |
 | Right document, wrong page / partial answers | lower `CHUNK_SIZE` (512 → 256) |
 
@@ -152,7 +182,7 @@ startup.
 | `OPENAI_EMBED_MODEL` | `text-embedding-3-small` | re-ingest after changing |
 | `QDRANT_URL` / `QDRANT_PATH` | — / `.qdrant_local` | server vs embedded mode |
 | `TOP_K` | `5` | passages retrieved |
-| `MIN_RELEVANCE` | `0.30` | cosine similarity gate |
+| `MIN_RELEVANCE` | `0.20` | cosine similarity gate |
 | `CHUNK_SIZE` / `CHUNK_OVERLAP` | `512` / `64` | tokens |
 | `PDF_DIR` | `data/sample_pdfs` | ingest source |
 | `API_KEY` | — | optional auth for `/chat` |

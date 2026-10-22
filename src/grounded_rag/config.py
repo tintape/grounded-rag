@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     qdrant_collection: str = "documents"
 
     top_k: int = Field(default=5, ge=1, le=20)
-    min_relevance: float = Field(default=0.30, ge=0.0, le=1.0)
+    min_relevance: float = Field(default=0.20, ge=0.0, le=1.0)
     chunk_size: int = Field(default=512, ge=64, le=4096)
     chunk_overlap: int = Field(default=64, ge=0)
 

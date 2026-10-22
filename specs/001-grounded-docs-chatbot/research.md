@@ -41,7 +41,7 @@
 ## R5. Grounding strategy (refusals)
 
 - **Decision**: two layers.
-  1. Retrieval gate: drop passages below `MIN_RELEVANCE` (cosine, default 0.30); if none remain,
+  1. Retrieval gate: drop passages below `MIN_RELEVANCE` (cosine, default 0.20); if none remain,
      refuse without calling the LLM.
   2. Generation contract: prompt requires `[n]` citations for every claim and the exact token
      `NOT_FOUND` when context is insufficient. Citations outside `1..k` are discarded; no valid
@@ -50,6 +50,9 @@
   questions); layer 2 covers "related but unanswered" questions. Validation ensures returned
   sources are always real retrieved passages.
 - **Tuning**: `MIN_RELEVANCE` and `TOP_K` are env-configurable and re-checked with the eval set.
+- **Measured (2026-10-23)**: unanswerable on-domain questions scored 0.36–0.59, above some
+  answerable ones (0.31); only off-topic input scored low (0.05). Layer 2 does the precision work,
+  so the default was lowered from 0.30 to 0.20 to protect recall.
 
 ## R6. Models
 

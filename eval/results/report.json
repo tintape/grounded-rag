@@ -1,0 +1,328 @@
+{
+  "summary": {
+    "cases": 20,
+    "refusal_accuracy": 1.0,
+    "answerable_answered_rate": 1.0,
+    "unanswerable_refused_rate": 1.0,
+    "source_hit_rate": 1.0,
+    "faithfulness": 1.0,
+    "correctness": 1.0,
+    "p95_latency_s": 2.66,
+    "answers_judged": 15,
+    "judge_failures": 0,
+    "unanswerable_answered": 0,
+    "errors": 0
+  },
+  "results": [
+    {
+      "id": "q01",
+      "question": "How do I factory reset the S7?",
+      "answerable": true,
+      "answer": "To factory reset the S7, hold the Home and Spot buttons together for 10 seconds until the light ring flashes blue. This will erase saved maps and Wi-Fi settings [1].",
+      "refused": false,
+      "sources": [
+        "product-guide.pdf p.4"
+      ],
+      "refusal_correct": true,
+      "source_hit": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "latency_s": 3.762,
+      "error": null
+    },
+    {
+      "id": "q02",
+      "question": "How long does the battery last in Eco mode?",
+      "answerable": true,
+      "answer": "The battery lasts up to 180 minutes in Eco mode [1].",
+      "refused": false,
+      "sources": [
+        "product-guide.pdf p.1"
+      ],
+      "refusal_correct": true,
+      "source_hit": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "latency_s": 2.103,
+      "error": null
+    },
+    {
+      "id": "q03",
+      "question": "Can I connect the robot to a 5 GHz Wi-Fi network?",
+      "answerable": true,
+      "answer": "No, the S7 robot only supports 2.4 GHz Wi-Fi networks and does not support 5 GHz networks [1].",
+      "refused": false,
+      "sources": [
+        "product-guide.pdf p.2"
+      ],
+      "refusal_correct": true,
+      "source_hit": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "latency_s": 2.015,
+      "error": null
+    },
+    {
+      "id": "q04",
+      "question": "What is the dustbin capacity?",
+      "answerable": true,
+      "answer": "The dustbin capacity is 450 ml [1].",
+      "refused": false,
+      "sources": [
+        "product-guide.pdf p.3"
+      ],
+      "refusal_correct": true,
+      "source_hit": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "latency_s": 2.133,
+      "error": null
+    },
+    {
+      "id": "q05",
+      "question": "How often should the HEPA filter be replaced?",
+      "answerable": true,
+      "answer": "The HEPA filter should be replaced every 3 months [1].",
+      "refused": false,
+      "sources": [
+        "product-guide.pdf p.4"
+      ],
+      "refusal_correct": true,
+      "source_hit": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "latency_s": 2.66,
+      "error": null
+    },
+    {
+      "id": "q06",
+      "question": "Is there a restocking fee for returns?",
+      "answerable": true,
+      "answer": "Yes, there is a 15% restocking fee for opened items returned without a defect. Defective items are returned with no fee [1].",
+      "refused": false,
+      "sources": [
+        "warranty-and-returns.pdf p.1"
+      ],
+      "refusal_correct": true,
+      "source_hit": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "latency_s": 2.172,
+      "error": null
+    },
+    {
+      "id": "q07",
+      "question": "How long is the battery covered by warranty?",
+      "answerable": true,
+      "answer": "The battery is covered by the warranty for 12 months from the purchase date [1].",
+      "refused": false,
+      "sources": [
+        "warranty-and-returns.pdf p.2"
+      ],
+      "refusal_correct": true,
+      "source_hit": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "latency_s": 1.714,
+      "error": null
+    },
+    {
+      "id": "q08",
+      "question": "Where do I find the serial number when creating an RMA?",
+      "answerable": true,
+      "answer": "The serial number is on the sticker under the dustbin and starts with LS7- when creating an RMA [1].",
+      "refused": false,
+      "sources": [
+        "warranty-and-returns.pdf p.3"
+      ],
+      "refusal_correct": true,
+      "source_hit": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "latency_s": 1.952,
+      "error": null
+    },
+    {
+      "id": "q09",
+      "question": "What should an agent do with an order older than 60 days?",
+      "answerable": true,
+      "answer": "For an order older than 60 days, the agent must escalate the return request to Tier 2 support [1].",
+      "refused": false,
+      "sources": [
+        "warranty-and-returns.pdf p.3"
+      ],
+      "refusal_correct": true,
+      "source_hit": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "latency_s": 1.95,
+      "error": null
+    },
+    {
+      "id": "q10",
+      "question": "Do you ship to Canada and how long does it take?",
+      "answerable": true,
+      "answer": "Yes, we ship to Canada. Standard shipping takes 3 to 5 business days [1].",
+      "refused": false,
+      "sources": [
+        "support-faq.pdf p.1"
+      ],
+      "refusal_correct": true,
+      "source_hit": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "latency_s": 1.926,
+      "error": null
+    },
+    {
+      "id": "q11",
+      "question": "Does the S7 work with Apple HomeKit?",
+      "answerable": true,
+      "answer": "The S7 does not support Apple HomeKit [1].",
+      "refused": false,
+      "sources": [
+        "support-faq.pdf p.2"
+      ],
+      "refusal_correct": true,
+      "source_hit": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "latency_s": 1.856,
+      "error": null
+    },
+    {
+      "id": "q12",
+      "question": "What does Lumora Care+ cost and what does it include?",
+      "answerable": true,
+      "answer": "The Lumora Care+ subscription costs $4.99 per month and extends the robot warranty to 36 months [1].",
+      "refused": false,
+      "sources": [
+        "support-faq.pdf p.3"
+      ],
+      "refusal_correct": true,
+      "source_hit": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "latency_s": 1.93,
+      "error": null
+    },
+    {
+      "id": "q13",
+      "question": "The robot shows error E1. What should the customer do?",
+      "answerable": true,
+      "answer": "The customer should turn the robot over and remove hair or debris from both drive wheels to resolve error E1 (Wheel stuck) [1].",
+      "refused": false,
+      "sources": [
+        "troubleshooting.pdf p.1"
+      ],
+      "refusal_correct": true,
+      "source_hit": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "latency_s": 1.965,
+      "error": null
+    },
+    {
+      "id": "q14",
+      "question": "How much clear space does the charging dock need?",
+      "answerable": true,
+      "answer": "The charging dock needs 0.5 meters of clear space on each side and 1.5 meters in front of it [1].",
+      "refused": false,
+      "sources": [
+        "troubleshooting.pdf p.3"
+      ],
+      "refusal_correct": true,
+      "source_hit": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "latency_s": 2.303,
+      "error": null
+    },
+    {
+      "id": "q15",
+      "question": "What is the retail price of the Lumora S7?",
+      "answerable": false,
+      "answer": "I couldn't find this in our documents. Please rephrase the question or contact a specialist.",
+      "refused": true,
+      "sources": [],
+      "refusal_correct": true,
+      "source_hit": null,
+      "faithfulness": null,
+      "correctness": null,
+      "latency_s": 2.056,
+      "error": null
+    },
+    {
+      "id": "q16",
+      "question": "Who is the CEO of Lumora?",
+      "answerable": false,
+      "answer": "I couldn't find this in our documents. Please rephrase the question or contact a specialist.",
+      "refused": true,
+      "sources": [],
+      "refusal_correct": true,
+      "source_hit": null,
+      "faithfulness": null,
+      "correctness": null,
+      "latency_s": 2.101,
+      "error": null
+    },
+    {
+      "id": "q17",
+      "question": "Does the S7 integrate with Samsung SmartThings?",
+      "answerable": false,
+      "answer": "I couldn't find this in our documents. Please rephrase the question or contact a specialist.",
+      "refused": true,
+      "sources": [],
+      "refusal_correct": true,
+      "source_hit": null,
+      "faithfulness": null,
+      "correctness": null,
+      "latency_s": 1.835,
+      "error": null
+    },
+    {
+      "id": "q18",
+      "question": "What is the support phone number?",
+      "answerable": false,
+      "answer": "I couldn't find this in our documents. Please rephrase the question or contact a specialist.",
+      "refused": true,
+      "sources": [],
+      "refusal_correct": true,
+      "source_hit": null,
+      "faithfulness": null,
+      "correctness": null,
+      "latency_s": 1.73,
+      "error": null
+    },
+    {
+      "id": "q19",
+      "question": "Can I return a product after 45 days if it is unopened?",
+      "answerable": true,
+      "answer": "No, you cannot return a product after 45 days because the return window is only 30 days from delivery, regardless of whether the item is opened or unopened [1].",
+      "refused": false,
+      "sources": [
+        "warranty-and-returns.pdf p.1"
+      ],
+      "refusal_correct": true,
+      "source_hit": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "latency_s": 1.876,
+      "error": null
+    },
+    {
+      "id": "q20",
+      "question": "Write me a poem about the ocean.",
+      "answerable": false,
+      "answer": "I couldn't find this in our documents. Please rephrase the question or contact a specialist.",
+      "refused": true,
+      "sources": [],
+      "refusal_correct": true,
+      "source_hit": null,
+      "faithfulness": null,
+      "correctness": null,
+      "latency_s": 0.788,
+      "error": null
+    }
+  ]
+}
