@@ -16,6 +16,10 @@ jobs:
           cache: pip
       - name: Install
         run: pip install -e ".[dev]"
+      - name: NLTK data
+        # Recent NLTK refuses data dirs writable by others (true for the runner's Python cache),
+        # so fetch the tokenizer resources LlamaIndex needs into the runner's home directory.
+        run: python -m nltk.downloader -q -d ~/nltk_data stopwords punkt_tab
       - name: Lint
         run: ruff check . && ruff format --check .
       - name: Test (offline, no API keys)
