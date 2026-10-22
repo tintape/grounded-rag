@@ -10,3 +10,6 @@ htmlcov/
 qdrant_storage/
 .qdrant_local/
 eval/results/*.tmp
+
+# local agent tooling (spec-kit skills for Claude Code)
+.claude/
