@@ -5,7 +5,7 @@ from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.openai import OpenAI
 from qdrant_client import QdrantClient
 
-from grounded_rag.config import Settings
+from grounded_rag.config import ConfigError, Settings
 from grounded_rag.rag.engine import EngineConfig, GroundedAnswerer
 from grounded_rag.store import ChunkStore
 
@@ -36,7 +36,13 @@ class OpenAIGenerator:
 def make_qdrant_client(settings: Settings) -> QdrantClient:
     if settings.qdrant_url:
         return QdrantClient(url=settings.qdrant_url, api_key=settings.qdrant_key)
-    return QdrantClient(path=settings.qdrant_path)
+    try:
+        return QdrantClient(path=settings.qdrant_path)
+    except RuntimeError as exc:  # embedded mode takes an exclusive lock on the folder
+        raise ConfigError(
+            f"Embedded Qdrant at '{settings.qdrant_path}' is in use by another process "
+            "(e.g. the API). Stop it, or run a Qdrant server and set QDRANT_URL."
+        ) from exc
 
 
 def build_store(settings: Settings, client: QdrantClient | None = None) -> ChunkStore:

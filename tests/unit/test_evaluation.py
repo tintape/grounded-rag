@@ -77,11 +77,36 @@ def test_source_hit_rate_counts_only_cases_with_expected_sources(summary):
     assert result.source_hit_rate == 0.5
 
 
-def test_judge_runs_only_on_answered_answerable_cases(summary):
+def test_judge_scores_every_produced_answer_including_hallucinations(summary):
     result, judge = summary
-    assert judge.calls == ["How do I reset?", "Battery warranty?"]
+    assert judge.calls == ["How do I reset?", "Battery warranty?", "What does it cost?"]
+    assert result.judged_count == 3
+    assert result.hallucinated == 1
     assert result.faithfulness == 1.0
     assert result.correctness == 0.5
+
+
+def test_one_failing_case_does_not_abort_the_run():
+    class Flaky:
+        def answer(self, question):
+            if question == "Battery warranty?":
+                raise TimeoutError("openai timeout")
+            return grounded("guide.pdf", 4)
+
+    result = run_eval(parse_cases(CASES_JSON), Flaky())
+    assert len(result.results) == 4
+    assert result.errors == 1
+    failed = next(r for r in result.results if r.error)
+    assert failed.refusal_correct is False and failed.source_hit is False
+
+
+def test_p95_uses_nearest_rank():
+    answerer = ScriptedAnswerer({})
+    cases = parse_cases(json.dumps([{"id": str(i), "question": str(i)} for i in range(20)]))
+    answerer.replies = {str(i): Answer.refusal() for i in range(20)}
+    result = run_eval(cases, answerer)
+    latencies = sorted(r.latency_s for r in result.results)
+    assert result.p95_latency_s == round(latencies[18], 2)
 
 
 def test_report_files_written(summary, tmp_path):
@@ -93,6 +118,7 @@ def test_report_files_written(summary, tmp_path):
     markdown = md_path.read_text()
     assert "Refusal accuracy" in markdown
     assert "| price |" in markdown
+    assert "Unanswerable questions answered anyway | 1" in markdown
 
 
 def test_load_cases_from_file(tmp_path):

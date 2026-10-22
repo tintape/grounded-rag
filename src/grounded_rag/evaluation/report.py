@@ -24,6 +24,10 @@ def summary_dict(summary: EvalSummary) -> dict:
         "faithfulness": summary.faithfulness,
         "correctness": summary.correctness,
         "p95_latency_s": summary.p95_latency_s,
+        "answers_judged": summary.judged_count,
+        "judge_failures": summary.judge_failures,
+        "unanswerable_answered": summary.hallucinated,
+        "errors": summary.errors,
     }
 
 
@@ -40,6 +44,7 @@ def _result_dict(result: EvalResult) -> dict:
         "faithfulness": result.scores.faithfulness,
         "correctness": result.scores.correctness,
         "latency_s": result.latency_s,
+        "error": result.error,
     }
 
 
@@ -61,7 +66,14 @@ def to_markdown(summary: EvalSummary) -> str:
         f"| Correct document + page cited | {_pct(s['source_hit_rate'])} |",
         f"| Faithfulness (LLM judge, 0-1) | {_num(s['faithfulness'])} |",
         f"| Correctness vs reference (LLM judge, 0-1) | {_num(s['correctness'])} |",
+        f"| Unanswerable questions answered anyway | {s['unanswerable_answered']} |",
         f"| p95 latency | {_num(s['p95_latency_s'])} s |",
+        f"| Errors (service failures) | {s['errors']} |",
+        "",
+        f"Judge scores average over the {s['answers_judged']} answers the bot produced "
+        f"({s['judge_failures']} judge failures excluded); refused questions are not scored. "
+        "The judge is an LLM, typically the same model as the generator — treat its scores as "
+        "indicative and spot-check the per-question table.",
         "",
         "## Per question",
         "",

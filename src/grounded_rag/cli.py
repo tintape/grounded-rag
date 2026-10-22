@@ -23,7 +23,9 @@ EXIT_UPSTREAM_ERROR = 3
 def _cmd_ingest(args: argparse.Namespace, settings: Settings) -> int:
     folder = Path(args.pdf_dir or settings.pdf_dir)
     store = factory.build_store(settings)
-    report = ingest_folder(folder, store, settings.chunk_size, settings.chunk_overlap)
+    report = ingest_folder(
+        folder, store, settings.chunk_size, settings.chunk_overlap, prune=args.prune
+    )
     for result in report.results:
         detail = f"{result.pages} pages, {result.chunks} chunks"
         if result.error:
@@ -31,6 +33,7 @@ def _cmd_ingest(args: argparse.Namespace, settings: Settings) -> int:
         print(f"  {result.status.value:<16} {result.doc_name} ({detail})")
     print(
         f"Loaded {report.loaded}/{len(report.results)} files, {report.total_chunks} chunks. "
+        f"Removed {report.pruned} chunks of deleted PDFs. "
         f"Library now holds {store.count()} chunks."
     )
     return 0
@@ -71,6 +74,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     ingest = sub.add_parser("ingest", help="Load all PDFs from a folder into the library")
     ingest.add_argument("--pdf-dir", help="Folder with PDFs (default: PDF_DIR)")
+    ingest.add_argument(
+        "--prune", action="store_true", help="Also remove documents no longer in the folder"
+    )
     ingest.set_defaults(handler=_cmd_ingest)
 
     ask = sub.add_parser("ask", help="Ask one question from the terminal")

@@ -87,8 +87,13 @@ def test_refuses_when_model_says_not_found():
     assert engine.answer("Unrelated question").refused is True
 
 
+def test_refuses_when_model_cites_a_passage_it_was_not_given():
+    engine, _ = make("Reset with Home and Spot [1]. Also it costs $499 [9].")
+    assert engine.answer("Reset?").refused is True
+
+
 def test_refuses_when_model_cites_nothing_valid():
-    engine, _ = make("It is probably 42 [9].")
+    engine, _ = make("It is probably 42 [0].")
     answer = engine.answer("Something")
     assert answer.refused is True
     assert answer.sources == ()
@@ -99,12 +104,27 @@ def test_refuses_when_model_answers_without_citations():
     assert engine.answer("Something").refused is True
 
 
-def test_same_page_cited_twice_becomes_one_source():
-    second = hit("product-guide.pdf", 4, "The ring flashes blue.", 0.7, index=1)
+def test_same_page_cited_twice_becomes_one_source_showing_both_passages():
+    second = hit("product-guide.pdf", 4, "The ring flashes blue.", 0.9, index=1)
     engine, _ = make("Hold buttons [1]; ring flashes [2].", hits=(RESET, second))
     answer = engine.answer("Reset?")
     assert len(answer.sources) == 1
     assert answer.answer == "Hold buttons [1]; ring flashes [1]."
+    assert "Hold Home and Spot" in answer.sources[0].excerpt
+    assert "ring flashes blue" in answer.sources[0].excerpt
+    assert answer.sources[0].score == 0.9
+
+
+def test_not_found_word_inside_cited_answer_is_not_a_refusal():
+    engine, _ = make("Hold Home and Spot [1]. NOT_FOUND")
+    answer = engine.answer("Reset?")
+    assert answer.refused is False
+    assert "NOT_FOUND" not in answer.answer
+
+
+def test_not_found_without_citations_is_a_refusal():
+    engine, _ = make("Sorry, NOT_FOUND in the passages.")
+    assert engine.answer("Reset?").refused is True
 
 
 def test_empty_library_gets_specific_message():

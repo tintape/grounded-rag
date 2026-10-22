@@ -5,6 +5,8 @@ import os
 import httpx
 import streamlit as st
 
+from grounded_rag.rag.sanitize import to_safe_markdown
+
 API_URL = os.environ.get("API_URL", "http://localhost:8000").rstrip("/")
 HEADERS = {"X-API-Key": key} if (key := os.environ.get("API_KEY")) else {}
 REQUEST_TIMEOUT_SECONDS = 60.0
@@ -36,7 +38,10 @@ def ask(question: str) -> dict:
         except ValueError:
             detail = f"HTTP {response.status_code}"
         return {"error": f"The service is temporarily unavailable: {detail}"}
-    return response.json()
+    try:
+        return response.json()
+    except ValueError:
+        return {"error": "The answer service returned an unexpected response."}
 
 
 def library_size() -> int | None:
@@ -50,15 +55,17 @@ def render_reply(reply: dict) -> None:
     if "error" in reply:
         st.error(reply["error"])
         return
+    # Answers and excerpts derive from untrusted PDF text: render them through the allowlist
+    # escaper (or as plain text) so they can never become links, images or HTML.
     if reply["refused"]:
-        st.warning(reply["answer"])
+        st.warning(to_safe_markdown(reply["answer"]))
         return
-    st.markdown(reply["answer"])
+    st.markdown(to_safe_markdown(reply["answer"]))
     for number, source in enumerate(reply["sources"], start=1):
-        label = f"[{number}] {source['doc_name']} — page {source['page']}"
+        label = to_safe_markdown(f"[{number}] {source['doc_name']} — page {source['page']}")
         with st.expander(label):
             st.caption(f"Relevance {source['score']:.2f}")
-            st.write(source["excerpt"])
+            st.text(source["excerpt"])
 
 
 def sidebar() -> str | None:

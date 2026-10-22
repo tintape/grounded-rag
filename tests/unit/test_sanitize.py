@@ -1,6 +1,6 @@
 import pytest
 
-from grounded_rag.rag.sanitize import sanitize_answer
+from grounded_rag.rag.sanitize import sanitize_answer, to_safe_markdown
 
 
 def renders_remote_content(text: str) -> bool:
@@ -8,11 +8,13 @@ def renders_remote_content(text: str) -> bool:
 
 
 def test_removes_markdown_images():
-    assert sanitize_answer("Reset it [1]. ![x](https://evil.example/leak?q=s)") == "Reset it [1]. x"
+    assert (
+        sanitize_answer("Reset it [1]. ![x](https://evil.example/leak?q=s)") == "Reset it [1]. [x]"
+    )
 
 
 def test_turns_links_into_plain_text():
-    assert sanitize_answer("See [the guide](https://evil.example) [2].") == "See the guide [2]."
+    assert sanitize_answer("See [the guide](https://evil.example) [2].") == "See [the guide] [2]."
 
 
 def test_strips_raw_html_and_autolinks():
@@ -46,3 +48,36 @@ def test_keeps_citations_lists_and_bold():
 
 def test_paragraph_breaks_survive():
     assert sanitize_answer("First [1].\n\n\n\nSecond [2].") == "First [1].\n\nSecond [2]."
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        "> ![x][r]\n> [r]: https://evil.example/x.png",
+        "- ![x][r]\n- [r]: https://evil.example/x.png",
+        "!![x](https://evil.example/x.png)",
+        "![x](https://evil.example/x.png)![y](https://evil.example/y.png)",
+    ],
+)
+def test_container_and_repeated_bypasses_are_neutralised(payload):
+    assert "http" not in sanitize_answer(f"Answer [1].\n{payload}")
+
+
+def test_safe_markdown_escapes_everything_but_citations_and_bold():
+    rendered = to_safe_markdown("Hold **Home** [1, 2]. ![x][r] [r]: <b>(u)</b> `c`")
+    assert "**Home**" in rendered
+    assert "[1, 2]" in rendered
+    for raw in ("![", "[r]", "<b>", "(u)", "`c`"):
+        assert raw not in rendered
+
+
+def test_comparison_signs_are_not_mistaken_for_html():
+    text = "Torque is <5 Nm [1] and >2 Nm [2]."
+    assert sanitize_answer(text) == text
+
+
+def test_error_code_brackets_are_kept():
+    assert (
+        sanitize_answer("Error [E7] means Wi-Fi failed [1].")
+        == "Error [E7] means Wi-Fi failed [1]."
+    )

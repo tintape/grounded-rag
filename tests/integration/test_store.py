@@ -55,3 +55,38 @@ def test_search_returns_best_match_with_metadata(store):
     assert best.chunk.page == 2
     assert best.score > hits[1].score
     assert 0.0 <= best.score <= 1.0
+
+
+class FlakyEmbedding(KeywordEmbedding):
+    fail: bool = False
+
+    def _get_text_embeddings(self, texts):
+        if self.fail:
+            raise ConnectionError("rate limited")
+        return [self._get_text_embedding(t) for t in texts]
+
+
+def test_failed_reingest_keeps_previous_version():
+    embedder = FlakyEmbedding()
+    store = ChunkStore(QdrantClient(location=":memory:"), "test", embedder)
+    doc_id = document_id("guide.pdf")
+    store.replace_document(doc_id, chunks_for("guide.pdf", "Version one text."))
+    embedder.fail = True
+    with pytest.raises(ConnectionError):
+        store.replace_document(doc_id, chunks_for("guide.pdf", "Version two text."))
+    assert store.count() == 1
+    assert store.search("version", top_k=1)[0].chunk.text == "Version one text."
+
+
+def test_empty_replacement_removes_document(store):
+    doc_id = document_id("guide.pdf")
+    store.replace_document(doc_id, chunks_for("guide.pdf", "Some text."))
+    store.replace_document(doc_id, ())
+    assert store.count() == 0
+
+
+def test_remove_documents_except_prunes_others(store):
+    store.replace_document(document_id("a.pdf"), chunks_for("a.pdf", "Alpha.", "Alpha two."))
+    store.replace_document(document_id("b.pdf"), chunks_for("b.pdf", "Beta."))
+    assert store.remove_documents_except({document_id("a.pdf")}) == 1
+    assert store.count() == 2

@@ -10,7 +10,7 @@ from grounded_rag.models import (
     RetrievedChunk,
     Source,
 )
-from grounded_rag.rag.citations import cited_indices, rewrite_markers
+from grounded_rag.rag.citations import cited_indices, has_invalid_markers, rewrite_markers
 from grounded_rag.rag.prompts import NOT_FOUND, SYSTEM_PROMPT, build_user_prompt
 from grounded_rag.rag.sanitize import sanitize_answer
 
@@ -74,29 +74,33 @@ class GroundedAnswerer:
             raise UpstreamError("The answer service is unavailable") from exc
 
     def _ground(self, raw: str, hits: tuple[RetrievedChunk, ...]) -> Answer:
-        if NOT_FOUND in raw:
+        text = sanitize_answer(raw)
+        if text == NOT_FOUND:
             return Answer.refusal()
-        raw = sanitize_answer(raw)
-        cited = cited_indices(raw, len(hits))
+        if has_invalid_markers(text, len(hits)):
+            logger.info("Refused after generation: model cited a passage it was not given")
+            return Answer.refusal()
+        cited = cited_indices(text, len(hits))
         if not cited:
             logger.info("Refused after generation: no valid citations")
             return Answer.refusal()
-        sources: list[Source] = []
-        page_to_number: dict[tuple[str, int], int] = {}
+        by_page: dict[tuple[str, int], list[RetrievedChunk]] = {}
         mapping: dict[int, int] = {}
         for passage_number in cited:
             hit = hits[passage_number - 1]
-            key = (hit.chunk.doc_name, hit.chunk.page)
-            if key not in page_to_number:
-                page_to_number[key] = len(sources) + 1
-                sources.append(self._source(hit))
-            mapping[passage_number] = page_to_number[key]
-        return Answer(answer=rewrite_markers(raw, mapping), refused=False, sources=tuple(sources))
+            group = by_page.setdefault((hit.chunk.doc_name, hit.chunk.page), [])
+            group.append(hit)
+            mapping[passage_number] = list(by_page).index((hit.chunk.doc_name, hit.chunk.page)) + 1
+        sources = tuple(self._source(group) for group in by_page.values())
+        answer_text = rewrite_markers(text.replace(NOT_FOUND, ""), mapping)
+        return Answer(answer=answer_text, refused=False, sources=sources)
 
-    def _source(self, hit: RetrievedChunk) -> Source:
+    def _source(self, group: list[RetrievedChunk]) -> Source:
+        """One source per cited page; shows every cited passage from that page."""
+        first = group[0].chunk
         return Source(
-            doc_name=hit.chunk.doc_name,
-            page=hit.chunk.page,
-            excerpt=_excerpt(hit.chunk.text, self._config.excerpt_chars),
-            score=round(hit.score, 3),
+            doc_name=first.doc_name,
+            page=first.page,
+            excerpt=_excerpt(" … ".join(h.chunk.text for h in group), self._config.excerpt_chars),
+            score=round(max(h.score for h in group), 3),
         )

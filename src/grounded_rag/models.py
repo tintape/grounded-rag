@@ -75,6 +75,7 @@ class FileIngestResult:
 @dataclass(frozen=True, slots=True)
 class IngestReport:
     results: tuple[FileIngestResult, ...] = field(default_factory=tuple)
+    pruned: int = 0  # passages removed for PDFs no longer in the folder
 
     @property
     def loaded(self) -> int:

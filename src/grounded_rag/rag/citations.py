@@ -19,6 +19,15 @@ def cited_indices(text: str, n_passages: int) -> tuple[int, ...]:
     return tuple(seen)
 
 
+def has_invalid_markers(text: str, n_passages: int) -> bool:
+    """True if any marker cites a passage number that was not provided (a fabricated source)."""
+    return any(
+        not 1 <= number <= n_passages
+        for match in _MARKER.finditer(text)
+        for number in _numbers(match.group(1))
+    )
+
+
 def rewrite_markers(text: str, mapping: dict[int, int]) -> str:
     """Renumber markers via `mapping` (passage -> source number); drop unmapped numbers."""
 

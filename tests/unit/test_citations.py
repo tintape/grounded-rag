@@ -1,4 +1,4 @@
-from grounded_rag.rag.citations import cited_indices, rewrite_markers
+from grounded_rag.rag.citations import cited_indices, has_invalid_markers, rewrite_markers
 
 
 def test_extracts_unique_indices_in_order_of_first_use():
@@ -24,3 +24,9 @@ def test_rewrite_renumbers_and_drops_invalid():
 
 def test_rewrite_merges_duplicates_inside_one_marker():
     assert rewrite_markers("Both [1, 2].", {1: 1, 2: 1}) == "Both [1]."
+
+
+def test_detects_out_of_range_markers():
+    assert has_invalid_markers("A [1]. B [4].", n_passages=3) is True
+    assert has_invalid_markers("A [1, 3].", n_passages=3) is False
+    assert has_invalid_markers("A [0].", n_passages=3) is True

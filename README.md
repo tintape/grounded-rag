@@ -9,12 +9,13 @@ questions answered by hand every day.
 - 📄 **Page-accurate citations** — passages never span pages, so "product-guide.pdf, page 4" is exact.
 - 🛑 **Two-layer hallucination guard** — weak retrieval is refused *before* the LLM is called; the
   model must cite numbered passages, and answers without valid citations become refusals.
-- 🔁 **Idempotent ingestion** — re-run it any time; edited PDFs replace their old passages, nothing
-  duplicates. Scanned, encrypted or broken PDFs are reported, not silently skipped.
+- 🔁 **Safe, idempotent ingestion** — re-run it any time; edited PDFs replace their old passages
+  (new version is embedded *before* the old one is removed, so an API outage never empties a
+  document), `--prune` drops PDFs you deleted. Scanned, encrypted or broken PDFs are reported.
 - 📊 **Built-in evaluation** — refusal accuracy, correct-page hit rate, LLM-judged faithfulness and
   correctness, p95 latency → `report.md`.
 - 🐳 **One command to run** — Qdrant + FastAPI + Streamlit via Docker Compose.
-- ✅ **94 offline tests, 98% coverage** — no API key needed to run the suite (CI included).
+- ✅ **120 offline tests, 98% coverage** — no API key needed to run the suite (CI included).
 
 The repo ships with four **synthetic** PDFs for a fictional company (Lumora Home Robotics, a robot
 vacuum maker) and a 20-question eval set, so everything is runnable without real data.
@@ -58,7 +59,8 @@ docker compose run --rm ingest    # loads data/sample_pdfs
 Open **http://localhost:8501** and try *"How do I factory reset the S7?"* or *"Who is the CEO?"*.
 
 To use your own documents, put PDFs in `data/pdfs/`, set `PDF_DIR=data/pdfs` in `.env`, and re-run
-the ingest job.
+the ingest job (`docker compose run --rm ingest grounded-rag ingest --prune` also removes PDFs you
+deleted from the folder).
 
 ## Local development (no Docker)
 
@@ -183,13 +185,17 @@ traceable claims, offline tests, measured quality), and every module traces back
   validate citations or refuse deterministically; here both are explicit and unit-tested.
 - **Per-page chunks** trade a little cross-page context for exact page citations — the thing support
   agents actually need to verify an answer.
-- **Answers are sanitized** (no links, images or HTML) before rendering: document text is untrusted
-  input and could carry prompt-injection payloads.
+- **Answers are treated as untrusted output.** Document text could carry prompt-injection payloads,
+  so the API strips link destinations, reference definitions and HTML, the model is refused if it
+  cites a passage number it was never given, and the UI renders through an allowlist escaper (only
+  citation markers and bold survive) with source excerpts shown as plain text.
 
 ## Limitations and next steps
 
 - Scanned PDFs are detected and reported but not OCR'd (add Docling/Tesseract for those).
 - Single-turn Q&A; no conversation memory.
+- Citations are enforced per answer, not per sentence: an answer with valid citations could still
+  contain one uncited sentence. The eval's faithfulness score is the check for this.
 - No user accounts or rate limiting. All ports bind to `127.0.0.1` by default; to share the chat
   page with a team, put it behind your SSO or an authenticating reverse proxy.
 - Possible upgrades: hybrid (BM25 + vector) search for part numbers and error codes, a reranker,
