@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+qdrant_storage/
+.qdrant_local/
+eval/results/*.tmp
