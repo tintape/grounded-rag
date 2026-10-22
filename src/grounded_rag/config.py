@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", frozen=True)
 
     openai_api_key: SecretStr | None = None
+    openai_base_url: str | None = None  # any OpenAI-compatible endpoint, e.g. OpenRouter
     openai_chat_model: str = "gpt-4.1-mini"
     openai_embed_model: str = "text-embedding-3-small"
 
@@ -31,7 +32,7 @@ class Settings(BaseSettings):
     api_url: str = "http://localhost:8000"
     api_key: SecretStr | None = None  # when set, /chat requires the X-API-Key header
 
-    @field_validator("qdrant_url", mode="before")
+    @field_validator("qdrant_url", "openai_base_url", mode="before")
     @classmethod
     def _blank_url_is_none(cls, value: str | None) -> str | None:
         if value is None or not str(value).strip():

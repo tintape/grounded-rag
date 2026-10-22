@@ -1,8 +1,7 @@
 """Wire real OpenAI + Qdrant components from Settings."""
 
-from llama_index.core.llms import ChatMessage, MessageRole
+import openai
 from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.llms.openai import OpenAI
 from qdrant_client import QdrantClient
 
 from grounded_rag.config import ConfigError, Settings
@@ -14,23 +13,23 @@ LLM_MAX_RETRIES = 2
 
 
 class OpenAIGenerator:
-    def __init__(self, model: str, api_key: str) -> None:
-        self._llm = OpenAI(
-            model=model,
-            temperature=0.0,
-            api_key=api_key,
-            timeout=LLM_TIMEOUT_SECONDS,
-            max_retries=LLM_MAX_RETRIES,
-        )
+    """Chat completion via the official SDK, so any OpenAI-compatible endpoint works
+    (OpenAI, OpenRouter, Azure-style gateways) with provider-prefixed model names."""
+
+    def __init__(self, model: str, client: openai.OpenAI) -> None:
+        self._model = model
+        self._client = client
 
     def generate(self, system: str, user: str) -> str:
-        response = self._llm.chat(
-            [
-                ChatMessage(role=MessageRole.SYSTEM, content=system),
-                ChatMessage(role=MessageRole.USER, content=user),
-            ]
+        response = self._client.chat.completions.create(
+            model=self._model,
+            temperature=0,
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ],
         )
-        return response.message.content or ""
+        return response.choices[0].message.content or ""
 
 
 def make_qdrant_client(settings: Settings) -> QdrantClient:
@@ -47,13 +46,21 @@ def make_qdrant_client(settings: Settings) -> QdrantClient:
 
 def build_store(settings: Settings, client: QdrantClient | None = None) -> ChunkStore:
     embedder = OpenAIEmbedding(
-        model=settings.openai_embed_model, api_key=settings.require_api_key()
+        model_name=settings.openai_embed_model,
+        api_key=settings.require_api_key(),
+        api_base=settings.openai_base_url,
     )
     return ChunkStore(client or make_qdrant_client(settings), settings.qdrant_collection, embedder)
 
 
 def build_generator(settings: Settings) -> OpenAIGenerator:
-    return OpenAIGenerator(settings.openai_chat_model, settings.require_api_key())
+    client = openai.OpenAI(
+        api_key=settings.require_api_key(),
+        base_url=settings.openai_base_url,
+        timeout=LLM_TIMEOUT_SECONDS,
+        max_retries=LLM_MAX_RETRIES,
+    )
+    return OpenAIGenerator(settings.openai_chat_model, client)
 
 
 def build_answerer(

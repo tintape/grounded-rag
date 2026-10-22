@@ -15,7 +15,7 @@ questions answered by hand every day.
 - 📊 **Built-in evaluation** — refusal accuracy, correct-page hit rate, LLM-judged faithfulness and
   correctness, p95 latency → `report.md`.
 - 🐳 **One command to run** — Qdrant + FastAPI + Streamlit via Docker Compose.
-- ✅ **124 offline tests, 98% coverage** — no API key needed to run the suite (CI included).
+- ✅ **126 offline tests, 98% coverage** — no API key needed to run the suite (CI included).
 
 The repo ships with four **synthetic** PDFs for a fictional company (Lumora Home Robotics, a robot
 vacuum maker) and a 20-question eval set, so everything is runnable without real data.
@@ -146,7 +146,8 @@ startup.
 
 | Variable | Default | Notes |
 |---|---|---|
-| `OPENAI_API_KEY` | — | required |
+| `OPENAI_API_KEY` | — | required (OpenAI or any OpenAI-compatible provider) |
+| `OPENAI_BASE_URL` | — | e.g. `https://openrouter.ai/api/v1`; use `openai/…` model names there |
 | `OPENAI_CHAT_MODEL` | `gpt-4.1-mini` | any OpenAI chat model |
 | `OPENAI_EMBED_MODEL` | `text-embedding-3-small` | re-ingest after changing |
 | `QDRANT_URL` / `QDRANT_PATH` | — / `.qdrant_local` | server vs embedded mode |
