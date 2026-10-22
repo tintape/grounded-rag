@@ -163,3 +163,9 @@ def test_answer_hitting_sanitizer_cap_becomes_refusal(monkeypatch):
     monkeypatch.setattr(sanitize, "_MAX_PASSES", 0)
     engine, _ = make("Reset [1]. ![x](https://evil.example)")
     assert engine.answer("Reset?").refused is True
+
+
+def test_excerpt_flattens_pdf_line_wraps():
+    wrapped = hit("guide.pdf", 1, "Replace the side\nbrushes   every\n6 months.", 0.9)
+    engine, _ = make("Answer [1].", hits=(wrapped,))
+    assert engine.answer("q").sources[0].excerpt == "Replace the side brushes every 6 months."

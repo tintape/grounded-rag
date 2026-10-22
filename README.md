@@ -1,5 +1,9 @@
 # Grounded RAG — a support chatbot that only answers from your PDFs
 
+[![CI](https://github.com/tintape/grounded-rag/actions/workflows/ci.yml/badge.svg)](https://github.com/tintape/grounded-rag/actions/workflows/ci.yml)
+![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
+![License: MIT](https://img.shields.io/badge/license-MIT-green)
+
 Ask a question, get a short answer **with the document name and page for every claim** — or an
 honest *"I couldn't find this in our documents"* instead of a guess.
 
@@ -15,7 +19,9 @@ questions answered by hand every day.
 - 📊 **Built-in evaluation** — refusal accuracy, correct-page hit rate, LLM-judged faithfulness and
   correctness, p95 latency → `report.md`.
 - 🐳 **One command to run** — Qdrant + FastAPI + Streamlit via Docker Compose.
-- ✅ **126 offline tests, 98% coverage** — no API key needed to run the suite (CI included).
+- ✅ **127 offline tests, 98% coverage** — no API key needed to run the suite (CI included).
+
+![Chat page: a cited answer with its source page expanded, and an honest refusal](docs/screenshot.png)
 
 The repo ships with four **synthetic** PDFs for a fictional company (Lumora Home Robotics, a robot
 vacuum maker) and a 20-question eval set, so everything is runnable without real data.

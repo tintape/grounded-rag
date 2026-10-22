@@ -38,7 +38,8 @@ class EngineConfig:
 
 
 def _excerpt(text: str, limit: int) -> str:
-    return text if len(text) <= limit else text[:limit].rstrip() + "…"
+    flat = " ".join(text.split())  # PDF line wraps make excerpts hard to read
+    return flat if len(flat) <= limit else flat[:limit].rstrip() + "…"
 
 
 class GroundedAnswerer:

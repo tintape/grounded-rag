@@ -15,6 +15,7 @@ RUN pip install --upgrade pip && pip install ".[ui]" \
 
 COPY data ./data
 COPY eval ./eval
+COPY .streamlit ./.streamlit
 
 RUN useradd --create-home --uid 1000 app && chown -R app /app /opt/tiktoken
 USER app
