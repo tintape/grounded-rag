@@ -86,3 +86,9 @@ def test_safe_markdown_defeats_gfm_autolinks():
 
 def test_safe_markdown_escapes_existing_entities():
     assert to_safe_markdown("&#58;").startswith("\\&")
+
+
+def test_deeply_nested_payload_fails_closed_quickly():
+    payload = "!" * 50 + "[" * 50 + "x" + "](https://evil.example)" * 50
+    cleaned = sanitize_answer(f"Answer [1]. {payload}")
+    assert "](" not in cleaned and "!" not in cleaned and "<" not in cleaned

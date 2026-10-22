@@ -20,6 +20,8 @@ _HTML_TAG = re.compile(r"</?[A-Za-z][^<>\n]*>")  # real tags only, not "<5 Nm ..
 _IMAGE_MARK = re.compile(r"!+\[")
 _SPACE_RUNS = re.compile(r"[ \t]{2,}")
 _BLANK_RUNS = re.compile(r"\n{3,}")
+_MAX_PASSES = 10
+_FAIL_CLOSED = re.compile(r"[<>!]|\]\(")
 
 _MARKDOWN_CONTROL = re.compile(r"([\\`\[\]()<>!#|~_&])")
 _ZERO_WIDTH_SPACE = "\u200b"
@@ -34,8 +36,13 @@ def _sanitize_once(text: str) -> str:
 
 
 def sanitize_answer(text: str) -> str:
-    while (cleaned := _sanitize_once(text)) != text:  # every pass only shortens: terminates
+    for _ in range(_MAX_PASSES):
+        cleaned = _sanitize_once(text)
+        if cleaned == text:
+            break
         text = cleaned
+    else:  # still changing after the cap: adversarial input, fail closed
+        text = _FAIL_CLOSED.sub("", _sanitize_once(text))
     text = "\n".join(_SPACE_RUNS.sub(" ", line).strip() for line in text.splitlines())
     return _BLANK_RUNS.sub("\n\n", text).strip()
 

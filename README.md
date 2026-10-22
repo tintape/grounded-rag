@@ -15,7 +15,7 @@ questions answered by hand every day.
 - 📊 **Built-in evaluation** — refusal accuracy, correct-page hit rate, LLM-judged faithfulness and
   correctness, p95 latency → `report.md`.
 - 🐳 **One command to run** — Qdrant + FastAPI + Streamlit via Docker Compose.
-- ✅ **121 offline tests, 98% coverage** — no API key needed to run the suite (CI included).
+- ✅ **122 offline tests, 98% coverage** — no API key needed to run the suite (CI included).
 
 The repo ships with four **synthetic** PDFs for a fictional company (Lumora Home Robotics, a robot
 vacuum maker) and a 20-question eval set, so everything is runnable without real data.
