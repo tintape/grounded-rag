@@ -60,15 +60,17 @@
 
 ## R7. Evaluation
 
-- **Decision**: built-in metrics always computed — refusal accuracy (answerable vs unanswerable)
-  and source hit rate (expected document + page appears in citations). RAGAS faithfulness and
-  answer relevancy computed when the `eval` extra is installed and an API key is present.
-- **Rationale**: built-in metrics are deterministic and free; RAGAS adds LLM-judged quality where
-  available without making the core depend on it.
+- **Decision**: built-in metrics always computed — refusal accuracy (answerable vs unanswerable),
+  source hit rate (expected document + page appears in citations), p95 latency — plus RAGAS-style
+  LLM-judged faithfulness and correctness implemented in-house (`evaluation/judge.py`).
+- **Rationale**: `ragas` 0.4.3 fails on import against current `langchain-community`
+  (`langchain_community.chat_models.vertexai` removed). Two judge prompts are ~80 lines and remove
+  a fragile dependency chain from the quality gate.
+- **Alternatives**: pin an older langchain stack for RAGAS (brittle); DeepEval (heavier).
 
 ## R8. Demo data
 
-- **Decision**: generate synthetic PDFs for a fictional company ("Northwind Robotics", a robot
+- **Decision**: generate synthetic PDFs for a fictional company ("Lumora Home Robotics", a robot
   vacuum maker): product guide, warranty & returns SOP, support FAQ, troubleshooting guide.
 - **Rationale**: public demo without confidential or copyrighted material; known facts on known
   pages make the eval set precise.
