@@ -1,0 +1,22 @@
+[
+  {"id": "q01", "question": "How do I factory reset the S7?", "reference_answer": "Hold the Home and Spot buttons together for 10 seconds until the light ring flashes blue. This erases maps and Wi-Fi settings.", "expected_sources": [{"doc_name": "product-guide.pdf", "page": 4}]},
+  {"id": "q02", "question": "How long does the battery last in Eco mode?", "reference_answer": "Up to 180 minutes.", "expected_sources": [{"doc_name": "product-guide.pdf", "page": 1}]},
+  {"id": "q03", "question": "Can I connect the robot to a 5 GHz Wi-Fi network?", "reference_answer": "No, only 2.4 GHz Wi-Fi is supported.", "expected_sources": [{"doc_name": "product-guide.pdf", "page": 2}, {"doc_name": "troubleshooting.pdf", "page": 2}]},
+  {"id": "q04", "question": "What is the dustbin capacity?", "reference_answer": "450 ml.", "expected_sources": [{"doc_name": "product-guide.pdf", "page": 3}]},
+  {"id": "q05", "question": "How often should the HEPA filter be replaced?", "reference_answer": "Every 3 months.", "expected_sources": [{"doc_name": "product-guide.pdf", "page": 4}]},
+  {"id": "q06", "question": "Is there a restocking fee for returns?", "reference_answer": "Opened items returned without a defect have a 15% restocking fee; defective items have no fee.", "expected_sources": [{"doc_name": "warranty-and-returns.pdf", "page": 1}]},
+  {"id": "q07", "question": "How long is the battery covered by warranty?", "reference_answer": "12 months.", "expected_sources": [{"doc_name": "warranty-and-returns.pdf", "page": 2}]},
+  {"id": "q08", "question": "Where do I find the serial number when creating an RMA?", "reference_answer": "On the sticker under the dustbin; it starts with LS7-.", "expected_sources": [{"doc_name": "warranty-and-returns.pdf", "page": 3}]},
+  {"id": "q09", "question": "What should an agent do with an order older than 60 days?", "reference_answer": "Escalate it to Tier 2 support.", "expected_sources": [{"doc_name": "warranty-and-returns.pdf", "page": 3}]},
+  {"id": "q10", "question": "Do you ship to Canada and how long does it take?", "reference_answer": "Yes, to the US and Canada; standard shipping takes 3 to 5 business days.", "expected_sources": [{"doc_name": "support-faq.pdf", "page": 1}]},
+  {"id": "q11", "question": "Does the S7 work with Apple HomeKit?", "reference_answer": "No. It works with Alexa and Google Assistant, but HomeKit is not supported.", "expected_sources": [{"doc_name": "support-faq.pdf", "page": 2}]},
+  {"id": "q12", "question": "What does Lumora Care+ cost and what does it include?", "reference_answer": "$4.99 per month; it extends the robot warranty to 36 months.", "expected_sources": [{"doc_name": "support-faq.pdf", "page": 3}]},
+  {"id": "q13", "question": "The robot shows error E1. What should the customer do?", "reference_answer": "E1 means a wheel is stuck: turn the robot over and remove hair or debris from both drive wheels.", "expected_sources": [{"doc_name": "troubleshooting.pdf", "page": 1}]},
+  {"id": "q14", "question": "How much clear space does the charging dock need?", "reference_answer": "0.5 m on each side and 1.5 m in front.", "expected_sources": [{"doc_name": "troubleshooting.pdf", "page": 3}]},
+  {"id": "q15", "question": "What is the retail price of the Lumora S7?", "answerable": false},
+  {"id": "q16", "question": "Who is the CEO of Lumora?", "answerable": false},
+  {"id": "q17", "question": "Does the S7 integrate with Samsung SmartThings?", "answerable": false},
+  {"id": "q18", "question": "What is the support phone number?", "answerable": false},
+  {"id": "q19", "question": "Can I return a product after 45 days if it is unopened?", "reference_answer": "No. Returns are accepted within 30 days of delivery.", "expected_sources": [{"doc_name": "warranty-and-returns.pdf", "page": 1}]},
+  {"id": "q20", "question": "Write me a poem about the ocean.", "answerable": false}
+]

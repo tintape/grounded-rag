@@ -98,13 +98,13 @@ DOCUMENTS: dict[str, tuple[str, list[str]]] = {
     "troubleshooting.pdf": (
         "S7 Troubleshooting Guide",
         [
-            """<h1>S7 Troubleshooting Guide</h1><h2>Error codes E1–E3</h2>
+            """<h1>S7 Troubleshooting Guide</h1><h2>Error codes E1-E3</h2>
             <p><b>E1 — Wheel stuck.</b> Turn the robot over and remove hair or debris from both
             drive wheels.</p>
             <p><b>E2 — Cliff sensor blocked.</b> Wipe the four cliff sensors on the underside
             with a dry cloth.</p>
             <p><b>E3 — Side brush jammed.</b> Remove the side brush and clear tangled hair.</p>""",
-            """<h2>Error codes E4–E7</h2>
+            """<h2>Error codes E4-E7</h2>
             <p><b>E4 — Battery too low to return to dock.</b> Place the robot on the dock
             manually.</p>
             <p><b>E5 — Dustbin missing.</b> Reinsert the dustbin until it clicks.</p>

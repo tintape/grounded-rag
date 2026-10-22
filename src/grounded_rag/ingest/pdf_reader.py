@@ -18,7 +18,8 @@ EDGE_LINES = 2  # header/footer candidates: first and last N lines of each page
 REPEAT_RATIO = 0.6  # a line on >= 60% of pages' edges is treated as a header/footer
 
 _HYPHEN_BREAK = re.compile(r"(\w)-\n(\w)")
-_SPACES = re.compile(r"[ \t ]+")
+SPACES_PATTERN = "[ \t\u00a0]+"  # spaces, tabs, non-breaking spaces
+_SPACES = re.compile(SPACES_PATTERN)
 _DIGITS = re.compile(r"\d+")
 
 
