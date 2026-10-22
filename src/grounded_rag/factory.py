@@ -35,7 +35,7 @@ class OpenAIGenerator:
 
 def make_qdrant_client(settings: Settings) -> QdrantClient:
     if settings.qdrant_url:
-        return QdrantClient(url=settings.qdrant_url)
+        return QdrantClient(url=settings.qdrant_url, api_key=settings.qdrant_key)
     return QdrantClient(path=settings.qdrant_path)
 
 

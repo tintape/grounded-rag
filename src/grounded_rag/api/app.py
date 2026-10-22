@@ -1,9 +1,10 @@
 """FastAPI service exposing /health and /chat."""
 
 import logging
+import secrets
 from typing import Annotated, Protocol
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel, ConfigDict, StringConstraints
 
 from grounded_rag.models import Answer
@@ -58,8 +59,19 @@ def _to_response(answer: Answer) -> ChatResponse:
     return ChatResponse(answer=answer.answer, refused=answer.refused, sources=sources)
 
 
-def create_app(answerer: Answerer, counter: Counter) -> FastAPI:
+def _require_key(expected: str | None):
+    def check(x_api_key: Annotated[str | None, Header()] = None) -> None:
+        if expected is None:
+            return
+        if x_api_key is None or not secrets.compare_digest(x_api_key, expected):
+            raise HTTPException(status_code=401, detail="Missing or invalid API key")
+
+    return check
+
+
+def create_app(answerer: Answerer, counter: Counter, api_key: str | None = None) -> FastAPI:
     app = FastAPI(title="Grounded RAG", version="0.1.0")
+    authorized = Depends(_require_key(api_key))
 
     @app.get("/health", response_model=HealthResponse)
     def health() -> HealthResponse:
@@ -69,7 +81,7 @@ def create_app(answerer: Answerer, counter: Counter) -> FastAPI:
             logger.exception("Health check failed")
             raise HTTPException(status_code=503, detail="Vector store unavailable") from exc
 
-    @app.post("/chat", response_model=ChatResponse)
+    @app.post("/chat", response_model=ChatResponse, dependencies=[authorized])
     def chat(request: ChatRequest) -> ChatResponse:
         try:
             return _to_response(answerer.answer(request.question))
@@ -87,4 +99,4 @@ def create_default_app() -> FastAPI:
 
     settings = Settings()
     store = build_store(settings)
-    return create_app(build_answerer(settings, store), store)
+    return create_app(build_answerer(settings, store), store, api_key=settings.chat_api_key)

@@ -6,6 +6,7 @@ import httpx
 import streamlit as st
 
 API_URL = os.environ.get("API_URL", "http://localhost:8000").rstrip("/")
+HEADERS = {"X-API-Key": key} if (key := os.environ.get("API_KEY")) else {}
 REQUEST_TIMEOUT_SECONDS = 60.0
 EXAMPLE_QUESTIONS = (
     "How do I factory reset the S7?",
@@ -18,14 +19,22 @@ EXAMPLE_QUESTIONS = (
 def ask(question: str) -> dict:
     try:
         response = httpx.post(
-            f"{API_URL}/chat", json={"question": question}, timeout=REQUEST_TIMEOUT_SECONDS
+            f"{API_URL}/chat",
+            json={"question": question},
+            headers=HEADERS,
+            timeout=REQUEST_TIMEOUT_SECONDS,
         )
     except httpx.HTTPError:
         return {"error": "Can't reach the answer service. Is the API running?"}
+    if response.status_code == 401:
+        return {"error": "The chat page is not authorised to call the API (check API_KEY)."}
     if response.status_code == 422:
         return {"error": "Please enter a question (up to 2,000 characters)."}
     if response.status_code != 200:
-        detail = response.json().get("detail", "Unknown error")
+        try:
+            detail = response.json().get("detail", "Unknown error")
+        except ValueError:
+            detail = f"HTTP {response.status_code}"
         return {"error": f"The service is temporarily unavailable: {detail}"}
     return response.json()
 
@@ -61,12 +70,11 @@ def sidebar() -> str | None:
         else:
             st.metric("Indexed passages", size)
         st.header("Try asking")
-        for question in EXAMPLE_QUESTIONS:
-            if st.button(question, use_container_width=True):
-                return question
+        # Render every button before deciding, so none disappear on the rerun after a click.
+        clicks = [st.button(q, use_container_width=True) for q in EXAMPLE_QUESTIONS]
         if st.button("Clear chat", type="secondary"):
             st.session_state.history = []
-    return None
+    return next((q for q, clicked in zip(EXAMPLE_QUESTIONS, clicks, strict=True) if clicked), None)
 
 
 def main() -> None:

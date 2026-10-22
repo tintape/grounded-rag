@@ -12,6 +12,7 @@ from grounded_rag.models import (
 )
 from grounded_rag.rag.citations import cited_indices, rewrite_markers
 from grounded_rag.rag.prompts import NOT_FOUND, SYSTEM_PROMPT, build_user_prompt
+from grounded_rag.rag.sanitize import sanitize_answer
 
 logger = logging.getLogger(__name__)
 
@@ -75,6 +76,7 @@ class GroundedAnswerer:
     def _ground(self, raw: str, hits: tuple[RetrievedChunk, ...]) -> Answer:
         if NOT_FOUND in raw:
             return Answer.refusal()
+        raw = sanitize_answer(raw)
         cited = cited_indices(raw, len(hits))
         if not cited:
             logger.info("Refused after generation: no valid citations")

@@ -88,3 +88,24 @@ def test_chat_503_on_upstream_failure():
     response = client(answerer).post("/chat", json={"question": "Reset?"})
     assert response.status_code == 503
     assert response.json()["detail"] == "The answer service is unavailable"
+
+
+def secured_client() -> TestClient:
+    return TestClient(create_app(StubAnswerer(GROUNDED), StubCounter(), api_key="s3cret"))
+
+
+@pytest.mark.parametrize("headers", [{}, {"X-API-Key": "wrong"}])
+def test_chat_requires_valid_key_when_configured(headers):
+    response = secured_client().post("/chat", json={"question": "Reset?"}, headers=headers)
+    assert response.status_code == 401
+
+
+def test_chat_accepts_valid_key():
+    response = secured_client().post(
+        "/chat", json={"question": "Reset?"}, headers={"X-API-Key": "s3cret"}
+    )
+    assert response.status_code == 200
+
+
+def test_health_stays_public_when_key_configured():
+    assert secured_client().get("/health").status_code == 200

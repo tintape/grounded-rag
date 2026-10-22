@@ -44,3 +44,10 @@ def test_settings_are_immutable():
     settings = make()
     with pytest.raises(ValidationError):
         settings.top_k = 10
+
+
+def test_optional_keys_treat_blank_as_unset():
+    settings = make(api_key="", qdrant_api_key="")
+    assert settings.chat_api_key is None
+    assert settings.qdrant_key is None
+    assert make(api_key="k").chat_api_key == "k"

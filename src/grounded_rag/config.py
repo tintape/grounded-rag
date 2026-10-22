@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     openai_embed_model: str = "text-embedding-3-small"
 
     qdrant_url: str | None = None
+    qdrant_api_key: SecretStr | None = None
     qdrant_path: str = ".qdrant_local"
     qdrant_collection: str = "documents"
 
@@ -28,6 +29,7 @@ class Settings(BaseSettings):
 
     pdf_dir: Path = Path("data/sample_pdfs")
     api_url: str = "http://localhost:8000"
+    api_key: SecretStr | None = None  # when set, /chat requires the X-API-Key header
 
     @field_validator("qdrant_url", mode="before")
     @classmethod
@@ -41,6 +43,18 @@ class Settings(BaseSettings):
         if self.chunk_overlap >= self.chunk_size:
             raise ValueError("CHUNK_OVERLAP must be smaller than CHUNK_SIZE")
         return self
+
+    @staticmethod
+    def _secret(value: SecretStr | None) -> str | None:
+        return value.get_secret_value() if value and value.get_secret_value() else None
+
+    @property
+    def chat_api_key(self) -> str | None:
+        return self._secret(self.api_key)
+
+    @property
+    def qdrant_key(self) -> str | None:
+        return self._secret(self.qdrant_api_key)
 
     def require_api_key(self) -> str:
         if self.openai_api_key is None or not self.openai_api_key.get_secret_value():
